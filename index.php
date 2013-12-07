@@ -12,7 +12,7 @@
     <!-- 
     #9FAEF7
     -->
-    <body  bgcolor="#F3F3F3" style="min-width: 900px;">
+    <body  bgcolor="#F3F3F3" style="min-width: 1050px;">
         <table border="0" width="100%;"  cellspacing="0" cellpadding="0">
             <tr bgcolor="#FFCF00">
                 <td width="15%"></td>

@@ -15,6 +15,7 @@
             $(document).ready(function() {
                 $(".inline").colorbox({inline: true});
             });
+
         </script>
 
         <script language="javascript">
@@ -28,20 +29,20 @@
                     return(false);
                 }
                 else {
-                    /*
-                     var seqstr = form1.S1.value;
-                     
-                     str = seqstr.toLowerCase();
-                     
-                     if (str.indexOf('>') !== 0) {
-                     alert("Sorry,your input sequence is not in Fasta format. Please see the example and input again!");
-                     form1.S1.focus();
-                     return(false);
-                     }
-                     
-                     var indexMatch = str.indexOf("\n");
-                     
-                     */
+/*
+                    var seqstr = form1.S1.value;
+
+                    str = seqstr.toLowerCase();
+
+                    if (str.indexOf('>') !== 0) {
+                        alert("Sorry,your input sequence is not in Fasta format. Please see the example and input again!");
+                        form1.S1.focus();
+                        return(false);
+                    }
+
+                    var indexMatch = str.indexOf("\n");
+
+*/
 
                     str = substr(str, indexMatch);
 
@@ -115,9 +116,35 @@
                 //alert(this.innerHTML);
                 //alert(qseq + "\n" + midline + "\n" + hseq);
             }
+            function showNCBI()
+            {
+                document.getElementById("dynamic").innerHTML = '<p style="padding:5px;">Fetching results from NCBI nr database...</p>';
+                if (window.XMLHttpRequest)
+                {// code for IE7+, Firefox, Chrome, Opera, Safari
+                    xmlhttp = new XMLHttpRequest();
+                }
+                else
+                {// code for IE6, IE5
+                    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                xmlhttp.onreadystatechange = function()
+                {
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    {
+                        data = document.getElementById("dynamic").innerHTML;
+                        data = '<p style="background:#FFD773;padding: 5px;">NCBI Search Results</p>' + xmlhttp.responseText;
+                        document.getElementById("dynamic").innerHTML = data;
+                        $(".inline").colorbox({inline: true, maxWidth: '900px'});
+                    }
+                }
+                xmlhttp.open("GET", "getNCBI.php", true);
+                xmlhttp.send();
+
+            }
+
         </script>
     </head>
-    <body   bgcolor="#F3F3F3" style="min-width: 900px;">
+    <body   bgcolor="#F3F3F3" style="min-width: 1050px;">
         <table border="0" width="100%;"  cellspacing="0" cellpadding="0">
             <tr bgcolor="#FFCF00">
                 <td width="15%"></td>
@@ -165,13 +192,13 @@
                                 $query = ">AACY020565195|1_395|-|Metagene|4215|Terminal|partial\nMASKKQVNKKKSKASKNNSSKVKTKKAVSKKAPAKKAPAKKTVAKKAPAKKAPAKKTVAKKAPAKKAPAKKTVAKKAPAKKTVAKKSSSKKSPTKKIKLQYSVGDFIVYPSHGVGEITDIQTFEIAEEKLE";
                                 if (isset($_POST['B1'])) {
                                     $query = $_POST['S1'];
-                                    //exec("echo \"$query\" > /home/saikiranboga/BTP/query");
+                                    exec("echo \"$query\" > /home/saikiranboga/BTP/query");
                                     // ALWAYS USE 2>&1 IN EXEC WHILE DEBUGGING
-                                    //$command = '/home/saikiranboga/BTP/blast+/bin/blastp -query /home/saikiranboga/BTP/query -db /home/saikiranboga/BTP/blast+/db/unannotated.fasta -outfmt=5';
-                                    //exec($command, $output, $status);
+                                    $command = '/home/saikiranboga/BTP/blast+/bin/blastp -query /home/saikiranboga/BTP/query -db /home/saikiranboga/BTP/blast+/db/unannotated.fasta -outfmt 5 -num_threads 4';
+                                    exec($command, $output, $status);
                                     // avoid blast+ search, read result from file
-                                    $lay = 'cat /home/saikiranboga/BTP/temp.xml';
-                                    exec($lay, $output, $status);
+                                    //$lay = 'cat /home/saikiranboga/BTP/temp.xml';
+                                    //exec($lay, $output, $status);
 
                                     $xmlString = implode("\n", $output);
                                     $xml = simplexml_load_string($xmlString);
@@ -255,13 +282,13 @@
                                             -->
                                             <tr>
                                                 <td style="padding: 5px; background: #FFD773">
-                                                        <?php echo $query ?>
+                                                    <pre><?php echo $query ?></pre>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <div  name="results" style="padding-left: 40px;">
-                                                        <table>
+                                                    <div name="results">
+                                                        <table id="results" width="100%">
                                                             <tr>
                                                                 <th>Annotation</th>
                                                                 <th>E-Value</th>
@@ -269,98 +296,103 @@
                                                                 <th>Fold Type</th>
                                                                 <th>Class</th>
                                                             </tr>
-                                                            
+
                                                             <?php
                                                             for ($i = 0; $i < count($Hit_def); $i++) {
                                                                 if ($class[$i] !== 'NA') {
                                                                     echo "<tr>";
-                                                                    echo "<td>" . $Hit_def[$i] . ' <a class="inline" href="#inline_content'.$i.'">[+]</a>';
+                                                                    echo '<td><pre>' . substr($Hit_def[$i], 0, 45) . '..<a class="inline" href="#inline_content' . $i . '">[+]</a></pre>';
                                                                     echo "<div style='display:none'>
-                                                                            <div id='inline_content".$i."' style='padding:10px; background:#fff;'>
-                                                                                <p><PRE>>".$Hit_def[$i];
-                                                                    echo "<br/>Length = ".$Hit_len[$i]."<br/>";
-                                                                    echo "<br/>Score = ".$Hsp_bitScore[$i]." bits (".$Hsp_score[$i].") ";
-                                                                    echo "Expect = ".trunc((double) $Hsp_evalue[$i], 2).".";
-                                                                    echo "<br/>Identities = ".$Hsp_identity[$i]."/".$Hsp_alignLen[$i]." (".(round($Hsp_identity[$i]/$Hsp_alignLen[$i], 2)*100)."%) ";
-                                                                    echo "Positives = ".$Hsp_positive[$i]."/".$Hsp_alignLen[$i]."(".(round($Hsp_positive[$i]/$Hsp_alignLen[$i], 2)*100)."%) ";
-                                                                    echo "Gaps = ".$Hsp_gaps[$i]."/".$Hsp_alignLen[$i]."(".(round($Hsp_gaps[$i]/$Hsp_alignLen[$i], 2)*100)."%) ";
-                                                                    echo "<br/><br/>Query  ".$Hsp_qseq[$i];
-                                                                    echo "<br/>       ".$Hsp_midline[$i];
-                                                                    echo "<br/>Sbjct  ".$Hsp_hseq[$i];
-                                                                    echo "<br/><br/>Representative Sequence: ".$repr_element[$i]."</PRE>";
+                                                                            <div id='inline_content" . $i . "' style='padding:10px; background:#fff;'>
+                                                                                <p><PRE>>" . $Hit_def[$i];
+                                                                    echo "<br/>Length = " . $Hit_len[$i] . "<br/>";
+                                                                    echo "<br/>Score = " . $Hsp_bitScore[$i] . " bits (" . $Hsp_score[$i] . ") ";
+                                                                    echo "Expect = " . trunc((double) $Hsp_evalue[$i], 2) . ".";
+                                                                    echo "<br/>Identities = " . $Hsp_identity[$i] . "/" . $Hsp_alignLen[$i] . " (" . (round($Hsp_identity[$i] / $Hsp_alignLen[$i], 2) * 100) . "%) ";
+                                                                    echo "Positives = " . $Hsp_positive[$i] . "/" . $Hsp_alignLen[$i] . "(" . (round($Hsp_positive[$i] / $Hsp_alignLen[$i], 2) * 100) . "%) ";
+                                                                    echo "Gaps = " . $Hsp_gaps[$i] . "/" . $Hsp_alignLen[$i] . "(" . (round($Hsp_gaps[$i] / $Hsp_alignLen[$i], 2) * 100) . "%) ";
+                                                                    echo "<br/><br/>Query  " . $Hsp_qseq[$i];
+                                                                    echo "<br/>       " . $Hsp_midline[$i];
+                                                                    echo "<br/>Sbjct  " . $Hsp_hseq[$i];
+                                                                    echo "<br/><br/>Representative Sequence: " . $repr_element[$i] . "</PRE>";
                                                                     echo "</p>
                                                                             </div>
                                                                           </div>";
                                                                     echo "</td>";
-                                                                    echo "<td>" . trunc((double) $Hsp_evalue[$i], 2) . "</td>";
-                                                                    echo "<td>" . $Hsp_score[$i] . "</td>";
-                                                                    echo "<td>" . $description[$i] . "</td>";
-                                                                    echo "<td>" . $class[$i] . "</td>";
+                                                                    echo "<td><pre>" . trunc((double) $Hsp_evalue[$i], 2) . "</td></pre>";
+                                                                    echo "<td><pre>" . $Hsp_score[$i] . "</td></pre>";
+                                                                    echo "<td><pre>" . $description[$i] . "</td></pre>";
+                                                                    echo "<td><pre>" . $class[$i] . "</td></pre>";
                                                                     echo "</tr>";
                                                                 }
                                                             }
                                                             ?>
                                                         </table>
+                                                        <div id="dynamic">
+                                                            <button onclick="showNCBI()">Search NCBI</button>
+                                                        </div>
                                                     </div>
                                             </tr>
                                             <tr>
-                                                <td align="center">
+                                                <td align="center" style="padding-top: 10px">
                                                     <a href="index.php">HOME</a>
                                                 </td>
                                             </tr>
                                         </table>
                                     </div>
-    <?
-} else {
-    ?>
+                                    <?
+                                } else {
+                                    ?>
                                     <table width="100%" bgcolor="#F0F8FF">
                                         <tr>
                                             <td valign="top">
                                                 <form name="form1" action="Align.php" method="post" enctype="multipart/form-data" onsubmit="javascript:return checkform();">
                                                     <input type="hidden" name="mode" value="string"/>
-                                                    <tr>
-                                                        <td height="20">
-                                                            Input the protein sequence (<a href="#" onclick="openwin();"><b><u>Example</u></b></a>):&nbsp;
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <textarea name="S1" style="width:99%; height:220px; overflow: auto; resize: none; margin: 0; border:1px solid #A1A1A1;"><?php echo $query; ?></textarea>
-                                                        </td>
-                                                    </tr>
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td height="20">
+                                                                Input the protein sequence (<a href="#" onclick="openwin();"><b><u>Example</u></b></a>):&nbsp;
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <textarea name="S1" style="width:99%; height:220px; overflow: auto; resize: none; margin: 0; border:1px solid #A1A1A1;"><?php echo $query; ?></textarea>
+                                                            </td>
+                                                        </tr>
 
-                                                    <tr>
-                                                        <td align="center">
-                                                            &nbsp &nbsp &nbsp &nbsp &nbsp
-                                                            <input style="font-size:13pt" type="submit" value="Submit" name="B1"/>
-                                                            &nbsp &nbsp &nbsp &nbsp &nbsp
-                                                            <input style="font-size:13pt" type="reset" value="Clear" name="RB"/>
-                                                        </td>
-                                                    </tr>
+                                                        <tr>
+                                                            <td align="center">
+                                                                &nbsp &nbsp &nbsp &nbsp &nbsp
+                                                                <input style="font-size:13pt" type="submit" value="Submit" name="B1"/>
+                                                                &nbsp &nbsp &nbsp &nbsp &nbsp
+                                                                <input style="font-size:13pt" type="reset" value="Clear" name="RB"/>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
                                                 </form>
                                             </td>
                                         </tr>
                                     </table>
-    <?
-}
-?>
+                                    <?
+                                }
+                                ?>
 
 
-<?php
+                                <?php
 
-function trunc($number, $places) {
-    if ($number == 0) {
-        return 0;
-    }
-    $num = ($number < 0 ? -$number : $number);
-    $d = \ceil(\log10((double) $num));
-    $power = $places - (int) $d;
+                                function trunc($number, $places) {
+                                    if ($number == 0) {
+                                        return 0;
+                                    }
+                                    $num = ($number < 0 ? -$number : $number);
+                                    $d = \ceil(\log10((double) $num));
+                                    $power = $places - (int) $d;
 
-    $magnitude = pow(10, $power);
-    $shifted = round($number * $magnitude);
-    return $shifted / $magnitude;
-}
-?>
+                                    $magnitude = pow(10, $power);
+                                    $shifted = round($number * $magnitude);
+                                    return $shifted / $magnitude;
+                                }
+                                ?>
                             </div>
                         </div>
                 </td>
@@ -370,14 +402,7 @@ function trunc($number, $places) {
             <tr bgcolor="#F3F3F3"><td colspan="3">&nbsp;</td></tr>
         </table>
         <div id="footer">
-            Last Updated: 27 Nov 2013
-        </div>
-
-        <!-- This contains the hidden content for inline calls -->
-        <div style='display:none'>
-            <div id='inline_content' style='padding:10px; background:#fff;'>
-                <p><strong>This content comes from a hidden element on this page.</strong></p>
-            </div>
+            Last Updated: 29 Nov 2013
         </div>
 
     </body>
