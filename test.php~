@@ -1,0 +1,13 @@
+require_once('sphinxapi.php');
+
+$s = new SphinxClient;
+
+$s->setServer('localhost', 'root', 'root', 3312);
+
+$s->setMatchMode(SPH_MATCH_EXTENDED2);
+
+$result = $s->Query("HMGC");
+
+echo '<pre>';
+
+print_r($result);

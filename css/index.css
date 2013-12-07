@@ -216,3 +216,50 @@ ul#nav li.cur a
     height: 0;
     clear: both;
 }
+
+#results{
+    border:none;
+    border-collapse: collapse;
+}
+
+#results td, #results th  {
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+#results td:first-child,#results th:first-child {
+    border-left: none;
+}
+
+#results td:last-child,#results th:last-child {
+    border-right: none;
+}
+
+#results th {
+    border-bottom: 1px solid #000;
+}
+
+#results_query{
+    border:none;
+    border-collapse: collapse;
+}
+
+#results_query td, #results_query th {
+    border-left: 1px solid #000;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+#results_query th {
+    border-bottom: 1px solid #000;
+}
+
+#results_query td:first-child, #results_query th:first-child {
+    border-left: none;
+}
+
+#results_query td:last-child, #results_query th:last-child {
+    border-right: none;
+}
