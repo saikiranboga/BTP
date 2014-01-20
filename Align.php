@@ -29,20 +29,20 @@
                     return(false);
                 }
                 else {
-/*
-                    var seqstr = form1.S1.value;
-
-                    str = seqstr.toLowerCase();
-
-                    if (str.indexOf('>') !== 0) {
-                        alert("Sorry,your input sequence is not in Fasta format. Please see the example and input again!");
-                        form1.S1.focus();
-                        return(false);
-                    }
-
-                    var indexMatch = str.indexOf("\n");
-
-*/
+                    /*
+                     var seqstr = form1.S1.value;
+                     
+                     str = seqstr.toLowerCase();
+                     
+                     if (str.indexOf('>') !== 0) {
+                     alert("Sorry,your input sequence is not in Fasta format. Please see the example and input again!");
+                     form1.S1.focus();
+                     return(false);
+                     }
+                     
+                     var indexMatch = str.indexOf("\n");
+                     
+                     */
 
                     str = substr(str, indexMatch);
 
@@ -188,13 +188,14 @@
                             <div class="dropCase">
 
                                 <?php
-                                include 'sqlConnect.php';
+                                include 'includes/sqlConnect.php';
+                                include 'includes/path.php';
                                 $query = ">AACY020565195|1_395|-|Metagene|4215|Terminal|partial\nMASKKQVNKKKSKASKNNSSKVKTKKAVSKKAPAKKAPAKKTVAKKAPAKKAPAKKTVAKKAPAKKAPAKKTVAKKAPAKKTVAKKSSSKKSPTKKIKLQYSVGDFIVYPSHGVGEITDIQTFEIAEEKLE";
                                 if (isset($_POST['B1'])) {
                                     $query = $_POST['S1'];
-                                    exec("echo \"$query\" > /home/saikiranboga/BTP/query");
+                                    exec("echo \"$query\" > $blastQuery");
                                     // ALWAYS USE 2>&1 IN EXEC WHILE DEBUGGING
-                                    $command = '/home/saikiranboga/BTP/blast+/bin/blastp -query /home/saikiranboga/BTP/query -db /home/saikiranboga/BTP/blast+/db/unannotated.fasta -outfmt 5 -num_threads 4';
+                                    $command = $blastBin . 'blastp -query ' . $blastQuery . ' -db ' . $blastDb . ' -outfmt 5 -num_threads 4';
                                     exec($command, $output, $status);
                                     // avoid blast+ search, read result from file
                                     //$lay = 'cat /home/saikiranboga/BTP/temp.xml';
@@ -263,10 +264,11 @@
                                         $escapeDescription = mysqli_escape_string($db_con, $description[sizeof($description) - 1]);
                                         $sql = "select class from fold_type_class where fold_type like('$escapeDescription')";
                                         $result = mysqli_query($db_con, $sql);
-                                        if (!($row = mysqli_fetch_array($result)))
+                                        if (!($row = mysqli_fetch_array($result))) {
                                             $class[] = "NA";
-                                        else
+                                        } else {
                                             $class[] = $row['class'];
+                                        }
                                     }
                                     ?>
                                     <div>
@@ -340,7 +342,7 @@
                                             </tr>
                                         </table>
                                     </div>
-                                    <?
+                                    <?php
                                 } else {
                                     ?>
                                     <table width="100%" bgcolor="#F0F8FF">
@@ -356,7 +358,9 @@
                                                         </tr>
                                                         <tr>
                                                             <td>
-                                                                <textarea name="S1" style="width:99%; height:220px; overflow: auto; resize: none; margin: 0; border:1px solid #A1A1A1;"><?php echo $query; ?></textarea>
+                                                                <textarea name="S1" style="width:99%; height:220px; overflow: auto; resize: none; margin: 0; border:1px solid #A1A1A1;"><?php
+                                echo $query;
+                                    ?></textarea>
                                                             </td>
                                                         </tr>
 
@@ -373,7 +377,7 @@
                                             </td>
                                         </tr>
                                     </table>
-                                    <?
+                                    <?php
                                 }
                                 ?>
 
@@ -395,6 +399,7 @@
                                 ?>
                             </div>
                         </div>
+                    </div>
                 </td>
                 <td  bgcolor="#F3F3F3">&nbsp;</td>
             </tr>
