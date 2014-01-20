@@ -31,14 +31,14 @@
                     <ul id="nav">
                         <li class="cur"><strong>Home</strong></li>
                         <li><a href="Align.php">Align</a></li>
-                        <li><a href="Query">Query</a></li>
-                        <li><a href="Federation">Federation</a></li>
-                        <li><a href="tutorial">Tutorial</a></li>
-                        <li><a href="faqs">FAQs</a></li>
-                        <li><a href="download">Download</a></li>
-                        <li><a href="links">Links</a></li>
-                        <li><a href="team">Team</a></li>
-                        <li><a href="feedback">Feedback</a></li>
+                        <li><a href="Query.php">Query</a></li>
+                        <li><a href="Federation.php">Federation</a></li>
+                        <li><a href="tutorial.php">Tutorial</a></li>
+                        <li><a href="faqs.php">FAQs</a></li>
+                        <li><a href="download.php">Download</a></li>
+                        <li><a href="links.php">Links</a></li>
+                        <li><a href="team.php">Team</a></li>
+                        <li><a href="feedback.php">Feedback</a></li>
                     </ul>
                 </td>
 
