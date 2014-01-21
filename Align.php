@@ -193,6 +193,7 @@
                                 $query = ">AACY020565195|1_395|-|Metagene|4215|Terminal|partial\nMASKKQVNKKKSKASKNNSSKVKTKKAVSKKAPAKKAPAKKTVAKKAPAKKAPAKKTVAKKAPAKKAPAKKTVAKKAPAKKTVAKKSSSKKSPTKKIKLQYSVGDFIVYPSHGVGEITDIQTFEIAEEKLE";
                                 if (isset($_POST['B1'])) {
                                     $query = $_POST['S1'];
+                                    $numQuery = 0;
                                     exec("echo \"$query\" > $blastQuery");
                                     // ALWAYS USE 2>&1 IN EXEC WHILE DEBUGGING
                                     $command = $blastBin . 'blastp -query ' . $blastQuery . ' -db ' . $blastDb . ' -outfmt 5 -num_threads 4';
@@ -207,32 +208,36 @@
                                         if ($fgen->getName() == 'BlastOutput_iterations') {
                                             foreach ($fgen->children() as $sgen) {
                                                 if ($sgen->getName() == 'Iteration') {
+                                                    $query_ID[$numQuery] = $sgen->{'Iteration_query-ID'};
+                                                    $query_def[$numQuery] = $sgen->{'Iteration_query-def'};
+                                                    $query_len[$numQuery] = $sgen->{'Iteration_query-len'};
                                                     foreach ($sgen->children() as $tgen) {
                                                         if ($tgen->getName() == 'Iteration_hits') {
                                                             foreach ($tgen->children() as $qgen) {
                                                                 if ($qgen->getName() == 'Hit') {
-                                                                    $Hit_def[] = $qgen->Hit_def;
-                                                                    $Hit_len[] = $qgen->Hit_len;
+                                                                    $Hit_def[$numQuery][] = $qgen->Hit_def;
+                                                                    $Hit_len[$numQuery][] = $qgen->Hit_len;
                                                                     foreach ($qgen->children() as $pgen) {
                                                                         if ($pgen->getName() == 'Hit_hsps') {
                                                                             foreach ($pgen->children() as $hgen) {
                                                                                 if ($hgen->getName() == 'Hsp') {
-                                                                                    $Hsp_bitScore[] = $hgen->{'Hsp_bit-score'};
-                                                                                    $Hsp_score[] = $hgen->{'Hsp_score'};
-                                                                                    $Hsp_evalue[] = $hgen->{'Hsp_evalue'};
-                                                                                    $Hsp_queryFrom[] = $hgen->{'Hsp_query-from'};
-                                                                                    $Hsp_queryTo[] = $hgen->{'Hsp_query-to'};
-                                                                                    $Hsp_hitFrom[] = $hgen->{'Hsp_hit-from'};
-                                                                                    $Hsp_hitTo[] = $hgen->{'Hsp_hit-to'};
-                                                                                    $Hsp_queryFrame[] = $hgen->{'Hsp_query-frame'};
-                                                                                    $Hsp_hitFrame[] = $hgen->{'Hsp_hit-frame'};
-                                                                                    $Hsp_identity[] = $hgen->{'Hsp_identity'};
-                                                                                    $Hsp_positive[] = $hgen->{'Hsp_positive'};
-                                                                                    $Hsp_gaps[] = $hgen->{'Hsp_gaps'};
-                                                                                    $Hsp_alignLen[] = $hgen->{'Hsp_align-len'};
-                                                                                    $Hsp_qseq[] = $hgen->{'Hsp_qseq'};
-                                                                                    $Hsp_hseq[] = $hgen->{'Hsp_hseq'};
-                                                                                    $Hsp_midline[] = $hgen->{'Hsp_midline'};
+                                                                                    $Hsp_bitScore[$numQuery][] = $hgen->{'Hsp_bit-score'};
+                                                                                    $Hsp_score[$numQuery][] = $hgen->{'Hsp_score'};
+                                                                                    $Hsp_evalue[$numQuery][] = $hgen->{'Hsp_evalue'};
+                                                                                    $Hsp_queryFrom[$numQuery][] = $hgen->{'Hsp_query-from'};
+                                                                                    $Hsp_queryTo[$numQuery][] = $hgen->{'Hsp_query-to'};
+                                                                                    $Hsp_hitFrom[$numQuery][] = $hgen->{'Hsp_hit-from'};
+                                                                                    $Hsp_hitTo[$numQuery][] = $hgen->{'Hsp_hit-to'};
+                                                                                    $Hsp_queryFrame[$numQuery][] = $hgen->{'Hsp_query-frame'};
+                                                                                    $Hsp_hitFrame[$numQuery][] = $hgen->{'Hsp_hit-frame'};
+                                                                                    $Hsp_identity[$numQuery][] = $hgen->{'Hsp_identity'};
+                                                                                    $Hsp_positive[$numQuery][] = $hgen->{'Hsp_positive'};
+                                                                                    $Hsp_gaps[$numQuery][] = $hgen->{'Hsp_gaps'};
+                                                                                    $Hsp_alignLen[$numQuery][] = $hgen->{'Hsp_align-len'};
+                                                                                    $Hsp_qseq[$numQuery][] = $hgen->{'Hsp_qseq'};
+                                                                                    $Hsp_hseq[$numQuery][] = $hgen->{'Hsp_hseq'};
+                                                                                    $Hsp_midline[$numQuery][] = $hgen->{'Hsp_midline'};
+                                                                                    break;
                                                                                 }
                                                                             }
                                                                         }
@@ -241,108 +246,111 @@
                                                             }
                                                         }
                                                     }
+                                                    $numQuery++;
                                                 }
                                             }
                                         }
                                     }
-                                    foreach ($Hit_def as $Hit) {
-                                        $escapeHit = mysqli_escape_string($db_con, $Hit);
-                                        $sql = "select repr_element from repr_elements where element like('$escapeHit')";
-                                        $result = mysqli_query($db_con, $sql);
-                                        if (!($row = mysqli_fetch_array($result)))
-                                            $repr_element[] = $Hit;
-                                        else
-                                            $repr_element[] = $row['repr_element'];
+                                    for ($qNum = 0; $qNum < $numQuery; $qNum++) {
+                                        foreach ($Hit_def[$qNum] as $Hit) {
+                                            $escapeHit = mysqli_escape_string($db_con, $Hit);
+                                            $sql = "select repr_element from repr_elements where element like('$escapeHit')";
+                                            $result = mysqli_query($db_con, $sql);
+                                            if (!($row = mysqli_fetch_array($result)))
+                                                $repr_element[] = $Hit;
+                                            else
+                                                $repr_element[] = $row['repr_element'];
 
-                                        $escapeRepr_element = mysqli_escape_string($db_con, $repr_element[sizeof($repr_element) - 1]);
-                                        $sql = "select description from repr_fold where assession_number like('$escapeRepr_element')";
-                                        $result = mysqli_query($db_con, $sql);
-                                        if (!($row = mysqli_fetch_array($result)))
-                                            $description[] = "NA";
-                                        else
-                                            $description[] = $row['description'];
-                                        $escapeDescription = mysqli_escape_string($db_con, $description[sizeof($description) - 1]);
-                                        $sql = "select class from fold_type_class where fold_type like('$escapeDescription')";
-                                        $result = mysqli_query($db_con, $sql);
-                                        if (!($row = mysqli_fetch_array($result))) {
-                                            $class[] = "NA";
-                                        } else {
-                                            $class[] = $row['class'];
+                                            $escapeRepr_element = mysqli_escape_string($db_con, $repr_element[sizeof($repr_element) - 1]);
+                                            $sql = "select description from repr_fold where assession_number like('$escapeRepr_element')";
+                                            $result = mysqli_query($db_con, $sql);
+                                            if (!($row = mysqli_fetch_array($result)))
+                                                $description[] = "NA";
+                                            else
+                                                $description[] = $row['description'];
+                                            $escapeDescription = mysqli_escape_string($db_con, $description[sizeof($description) - 1]);
+                                            $sql = "select class from fold_type_class where fold_type like('$escapeDescription')";
+                                            $result = mysqli_query($db_con, $sql);
+                                            if (!($row = mysqli_fetch_array($result))) {
+                                                $class[] = "NA";
+                                            } else {
+                                                $class[] = $row['class'];
+                                            }
                                         }
-                                    }
-                                    ?>
-                                    <div>
-                                        <table  id='table1'cellSpacing='0' cellPadding='0'  width="100%">
+                                        ?>
+                                        <div>
+                                            <table  id='table1'cellSpacing='0' cellPadding='0'  width="100%">
 
-                                            <tr>
-                                                <td>
-                                                    <p><font size=3pt face='times new roman'>Your input sequence is:</font></p>
-                                                </td>
-                                            </tr>
-                                            <!--
-                                                #FFD773
-                                            -->
-                                            <tr>
-                                                <td style="padding: 5px; background: #FFD773">
-                                                    <pre><?php echo $query ?></pre>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <div name="results">
-                                                        <table id="results" width="100%">
-                                                            <tr>
-                                                                <th>Annotation</th>
-                                                                <th>E-Value</th>
-                                                                <th>Score</th>
-                                                                <th>Fold Type</th>
-                                                                <th>Class</th>
-                                                            </tr>
+                                                <tr>
+                                                    <td>
+                                                        <p><font size=3pt face='times new roman'>Your input sequence is:</font></p>
+                                                    </td>
+                                                </tr>
+                                                <!--
+                                                    #FFD773
+                                                -->
+                                                <tr>
+                                                    <td style="padding: 5px; background: #FFD773">
+                                                        <pre><?php echo $query_def[$qNum] ?></pre>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div name="results">
+                                                            <table id="results" width="100%">
+                                                                <tr>
+                                                                    <th>Annotation</th>
+                                                                    <th>E-Value</th>
+                                                                    <th>Score</th>
+                                                                    <th>Fold Type</th>
+                                                                    <th>Class</th>
+                                                                </tr>
 
-                                                            <?php
-                                                            for ($i = 0; $i < count($Hit_def); $i++) {
-                                                                if ($class[$i] !== 'NA') {
-                                                                    echo "<tr>";
-                                                                    echo '<td><pre>' . substr($Hit_def[$i], 0, 45) . '..<a class="inline" href="#inline_content' . $i . '">[+]</a></pre>';
-                                                                    echo "<div style='display:none'>
+                                                                <?php
+                                                                for ($i = 0; $i < count($Hit_def[$qNum]); $i++) {
+                                                                    if ($class[$i] !== 'NA') {
+                                                                        echo "<tr>";
+                                                                        echo '<td><pre>' . substr($Hit_def[$qNum][$i], 0, 45) . '..<a class="inline" href="#inline_content' . $i . '">[+]</a></pre>';
+                                                                        echo "<div style='display:none'>
                                                                             <div id='inline_content" . $i . "' style='padding:10px; background:#fff;'>
-                                                                                <p><PRE>>" . $Hit_def[$i];
-                                                                    echo "<br/>Length = " . $Hit_len[$i] . "<br/>";
-                                                                    echo "<br/>Score = " . $Hsp_bitScore[$i] . " bits (" . $Hsp_score[$i] . ") ";
-                                                                    echo "Expect = " . trunc((double) $Hsp_evalue[$i], 2) . ".";
-                                                                    echo "<br/>Identities = " . $Hsp_identity[$i] . "/" . $Hsp_alignLen[$i] . " (" . (round($Hsp_identity[$i] / $Hsp_alignLen[$i], 2) * 100) . "%) ";
-                                                                    echo "Positives = " . $Hsp_positive[$i] . "/" . $Hsp_alignLen[$i] . "(" . (round($Hsp_positive[$i] / $Hsp_alignLen[$i], 2) * 100) . "%) ";
-                                                                    echo "Gaps = " . $Hsp_gaps[$i] . "/" . $Hsp_alignLen[$i] . "(" . (round($Hsp_gaps[$i] / $Hsp_alignLen[$i], 2) * 100) . "%) ";
-                                                                    echo "<br/><br/>Query  " . $Hsp_qseq[$i];
-                                                                    echo "<br/>       " . $Hsp_midline[$i];
-                                                                    echo "<br/>Sbjct  " . $Hsp_hseq[$i];
-                                                                    echo "<br/><br/>Representative Sequence: " . $repr_element[$i] . "</PRE>";
-                                                                    echo "</p>
+                                                                                <p><PRE>>" . $Hit_def[$qNum][$i];
+                                                                        echo "<br/>Length = " . $Hit_len[$qNum][$i] . "<br/>";
+                                                                        echo "<br/>Score = " . $Hsp_bitScore[$qNum][$i] . " bits (" . $Hsp_score[$qNum][$i] . ") ";
+                                                                        echo "Expect = " . trunc((double) $Hsp_evalue[$qNum][$i], 2) . ".";
+                                                                        echo "<br/>Identities = " . $Hsp_identity[$qNum][$i] . "/" . $Hsp_alignLen[$qNum][$i] . " (" . (round($Hsp_identity[$qNum][$i] / $Hsp_alignLen[$qNum][$i], 2) * 100) . "%) ";
+                                                                        echo "Positives = " . $Hsp_positive[$qNum][$i] . "/" . $Hsp_alignLen[$qNum][$i] . "(" . (round($Hsp_positive[$qNum][$i] / $Hsp_alignLen[$qNum][$i], 2) * 100) . "%) ";
+                                                                        echo "Gaps = " . $Hsp_gaps[$qNum][$i] . "/" . $Hsp_alignLen[$qNum][$i] . "(" . (round($Hsp_gaps[$qNum][$i] / $Hsp_alignLen[$qNum][$i], 2) * 100) . "%) ";
+                                                                        echo "<br/><br/>Query  " . $Hsp_qseq[$qNum][$i];
+                                                                        echo "<br/>       " . $Hsp_midline[$qNum][$i];
+                                                                        echo "<br/>Sbjct  " . $Hsp_hseq[$qNum][$i];
+                                                                        echo "<br/><br/>Representative Sequence: " . $repr_element[$qNum][$i] . "</PRE>";
+                                                                        echo "</p>
                                                                             </div>
                                                                           </div>";
-                                                                    echo "</td>";
-                                                                    echo "<td><pre>" . trunc((double) $Hsp_evalue[$i], 2) . "</td></pre>";
-                                                                    echo "<td><pre>" . $Hsp_score[$i] . "</td></pre>";
-                                                                    echo "<td><pre>" . $description[$i] . "</td></pre>";
-                                                                    echo "<td><pre>" . $class[$i] . "</td></pre>";
-                                                                    echo "</tr>";
+                                                                        echo "</td>";
+                                                                        echo "<td><pre>" . trunc((double) $Hsp_evalue[$qNum][$i], 2) . "</td></pre>";
+                                                                        echo "<td><pre>" . $Hsp_score[$qNum][$i] . "</td></pre>";
+                                                                        echo "<td><pre>" . $description[$i] . "</td></pre>";
+                                                                        echo "<td><pre>" . $class[$i] . "</td></pre>";
+                                                                        echo "</tr>";
+                                                                    }
                                                                 }
-                                                            }
-                                                            ?>
-                                                        </table>
-                                                        <div id="dynamic">
-                                                            <button onclick="showNCBI()">Search NCBI</button>
+                                                                ?>
+                                                            </table>
+                                                            <!--*As told by Ma'am this feature not required* div id="dynamic">
+                                                                <button onclick="showNCBI()">Search NCBI</button>
+                                                            </div-->
                                                         </div>
-                                                    </div>
-                                            </tr>
-                                            <tr>
-                                                <td align="center" style="padding-top: 10px">
-                                                    <a href="index.php">HOME</a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <?php
+                                                </tr>
+                                                <tr>
+                                                    <td align="center" style="padding-top: 10px">
+                                                        <a href="index.php">HOME</a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <?php
+                                    }
                                 } else {
                                     ?>
                                     <table width="100%" bgcolor="#F0F8FF">
@@ -359,8 +367,8 @@
                                                         <tr>
                                                             <td>
                                                                 <textarea name="S1" style="width:99%; height:220px; overflow: auto; resize: none; margin: 0; border:1px solid #A1A1A1;"><?php
-                                echo $query;
-                                    ?></textarea>
+                                                                    echo $query;
+                                                                    ?></textarea>
                                                             </td>
                                                         </tr>
 
