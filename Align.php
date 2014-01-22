@@ -20,6 +20,19 @@
 
         <script language="javascript">
 
+            //  function to toggle displaying results in detail for query
+            function toggle(num) {
+//                alert("result" + num);
+                if (document.getElementById("result" + num).style.display == "none")
+                {
+                    document.getElementById("result" + num).style.display = "block";
+                }
+                else {
+                    document.getElementById("result" + num).style.display = "none";
+                }
+            }
+
+
             function checkform()
             {
 
@@ -251,39 +264,42 @@
                                             }
                                         }
                                     }
-                                    for ($qNum = 0; $qNum < $numQuery; $qNum++) {
-                                        foreach ($Hit_def[$qNum] as $Hit) {
-                                            $escapeHit = mysqli_escape_string($db_con, $Hit);
-                                            $sql = "select repr_element from repr_elements where element like('$escapeHit')";
-                                            $result = mysqli_query($db_con, $sql);
-                                            if (!($row = mysqli_fetch_array($result)))
-                                                $repr_element[] = $Hit;
-                                            else
-                                                $repr_element[] = $row['repr_element'];
+                                    ?>
+                                    <div>
+                                        <table  id='table1'cellSpacing='0' cellPadding='0'  width="100%">
 
-                                            $escapeRepr_element = mysqli_escape_string($db_con, $repr_element[sizeof($repr_element) - 1]);
-                                            $sql = "select description from repr_fold where assession_number like('$escapeRepr_element')";
-                                            $result = mysqli_query($db_con, $sql);
-                                            if (!($row = mysqli_fetch_array($result)))
-                                                $description[] = "NA";
-                                            else
-                                                $description[] = $row['description'];
-                                            $escapeDescription = mysqli_escape_string($db_con, $description[sizeof($description) - 1]);
-                                            $sql = "select class from fold_type_class where fold_type like('$escapeDescription')";
-                                            $result = mysqli_query($db_con, $sql);
-                                            if (!($row = mysqli_fetch_array($result))) {
-                                                $class[] = "NA";
-                                            } else {
-                                                $class[] = $row['class'];
-                                            }
-                                        }
-                                        ?>
-                                        <div>
-                                            <table  id='table1'cellSpacing='0' cellPadding='0'  width="100%">
 
+                                            <?php
+                                            for ($qNum = 0; $qNum < $numQuery; $qNum++) {
+                                                foreach ($Hit_def[$qNum] as $Hit) {
+                                                    $escapeHit = mysqli_escape_string($db_con, $Hit);
+                                                    $sql = "select repr_element from repr_elements where element like('$escapeHit')";
+                                                    $result = mysqli_query($db_con, $sql);
+                                                    if (!($row = mysqli_fetch_array($result)))
+                                                        $repr_element[] = $Hit;
+                                                    else
+                                                        $repr_element[] = $row['repr_element'];
+
+                                                    $escapeRepr_element = mysqli_escape_string($db_con, $repr_element[sizeof($repr_element) - 1]);
+                                                    $sql = "select description from repr_fold where assession_number like('$escapeRepr_element')";
+                                                    $result = mysqli_query($db_con, $sql);
+                                                    if (!($row = mysqli_fetch_array($result)))
+                                                        $description[] = "NA";
+                                                    else
+                                                        $description[] = $row['description'];
+                                                    $escapeDescription = mysqli_escape_string($db_con, $description[sizeof($description) - 1]);
+                                                    $sql = "select class from fold_type_class where fold_type like('$escapeDescription')";
+                                                    $result = mysqli_query($db_con, $sql);
+                                                    if (!($row = mysqli_fetch_array($result))) {
+                                                        $class[] = "NA";
+                                                    } else {
+                                                        $class[] = $row['class'];
+                                                    }
+                                                }
+                                                ?>
                                                 <tr>
                                                     <td>
-                                                        <p><font size=3pt face='times new roman'>Your input sequence is:</font></p>
+                                                        <p> </p>
                                                     </td>
                                                 </tr>
                                                 <!--
@@ -291,12 +307,13 @@
                                                 -->
                                                 <tr>
                                                     <td style="padding: 5px; background: #FFD773">
-                                                        <pre><?php echo $query_def[$qNum] ?></pre>
+                                            <font size=3pt face='times new roman'>Query <?php print $qNum+1; ?></font>
+                                                        <pre><?php echo $query_def[$qNum] . '<a  onclick="toggle(' . $qNum . ')" >[+]</a>'; ?></pre>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div name="results">
+                                                        <div name="results" style="display: none" <?php echo 'id="result' . $qNum . '"'; ?> >
                                                             <table id="results" width="100%">
                                                                 <tr>
                                                                     <th>Annotation</th>
@@ -341,16 +358,18 @@
                                                                 <button onclick="showNCBI()">Search NCBI</button>
                                                             </div-->
                                                         </div>
-                                                </tr>
-                                                <tr>
-                                                    <td align="center" style="padding-top: 10px">
-                                                        <a href="index.php">HOME</a>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                        <?php
-                                    }
+                                                        <?php
+                                                    }
+                                                    ?>
+                                            </tr>
+                                            <tr>
+                                                <td align="center" style="padding-top: 10px">
+                                                    <a href="index.php">HOME</a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <?php
                                 } else {
                                     ?>
                                     <table width="100%" bgcolor="#F0F8FF">
