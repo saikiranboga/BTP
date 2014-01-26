@@ -20,19 +20,6 @@
 
         <script language="javascript">
 
-            //  function to toggle displaying results in detail for query
-            function toggle(num) {
-//                alert("result" + num);
-                if (document.getElementById("result" + num).style.display == "none")
-                {
-                    document.getElementById("result" + num).style.display = "block";
-                }
-                else {
-                    document.getElementById("result" + num).style.display = "none";
-                }
-            }
-
-
             function checkform()
             {
 
@@ -129,9 +116,9 @@
                 //alert(this.innerHTML);
                 //alert(qseq + "\n" + midline + "\n" + hseq);
             }
-            function showNCBI()
+            function showNCBI(nQuery)
             {
-                document.getElementById("dynamic").innerHTML = '<p style="padding:5px;">Fetching results from NCBI nr database...</p>';
+                document.getElementById("dynamic"+nQuery).innerHTML = '<p style="padding:5px;">Fetching results from NCBI nr database...</p>';
                 if (window.XMLHttpRequest)
                 {// code for IE7+, Firefox, Chrome, Opera, Safari
                     xmlhttp = new XMLHttpRequest();
@@ -142,19 +129,30 @@
                 }
                 xmlhttp.onreadystatechange = function()
                 {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
                     {
-                        data = document.getElementById("dynamic").innerHTML;
+                        data = document.getElementById("dynamic"+nQuery).innerHTML;
                         data = '<p style="background:#FFD773;padding: 5px;">NCBI Search Results</p>' + xmlhttp.responseText;
-                        document.getElementById("dynamic").innerHTML = data;
+                        document.getElementById("dynamic"+nQuery).innerHTML = data;
                         $(".inline").colorbox({inline: true, maxWidth: '900px'});
                     }
-                }
-                xmlhttp.open("GET", "getNCBI.php", true);
+                };
+                xmlhttp.open("GET", "getNCBI.php?qNum="+nQuery, true);
                 xmlhttp.send();
 
             }
 
+            //  function to toggle displaying results in detail for query
+            function toggle(num) {
+//                alert("result" + num);
+                if (document.getElementById("result" + num).style.display === "none")
+                {
+                    document.getElementById("result" + num).style.display = "block";
+                }
+                else {
+                    document.getElementById("result" + num).style.display = "none";
+                }
+            }
         </script>
     </head>
     <body   bgcolor="#F3F3F3" style="min-width: 1050px;">
@@ -206,6 +204,7 @@
                                 $query = ">AACY020565195|1_395|-|Metagene|4215|Terminal|partial\nMASKKQVNKKKSKASKNNSSKVKTKKAVSKKAPAKKAPAKKTVAKKAPAKKAPAKKTVAKKAPAKKAPAKKTVAKKAPAKKTVAKKSSSKKSPTKKIKLQYSVGDFIVYPSHGVGEITDIQTFEIAEEKLE";
                                 if (isset($_POST['B1'])) {
                                     $query = $_POST['S1'];
+                                    splitQueries($query);
                                     $numQuery = 0;
                                     exec("echo \"$query\" > $blastQuery");
                                     // ALWAYS USE 2>&1 IN EXEC WHILE DEBUGGING
@@ -354,9 +353,10 @@
                                                                 }
                                                                 ?>
                                                             </table>
-                                                            <!--*As told by Ma'am this feature not required* div id="dynamic">
-                                                                <button onclick="showNCBI()">Search NCBI</button>
-                                                            </div-->
+                                                            <!--*As told by Ma'am this feature not required*-->
+                                                            <div id="<?php echo "dynamic".$qNum;?>">
+                                                                <button onclick="showNCBI(<?php echo $qNum; ?>)">Search NCBI</button>
+                                                            </div>
                                                         </div>
                                                         <?php
                                                     }
@@ -422,6 +422,14 @@
                                     $magnitude = pow(10, $power);
                                     $shifted = round($number * $magnitude);
                                     return $shifted / $magnitude;
+                                }
+                                
+                                function splitQueries($query) {
+                                    $queries = explode('>', $query);
+                                    
+                                    for($i=0; $i<count($queries)-1; $i++) {
+                                        exec('echo ">'.$queries[$i+1].'" > data/query'.$i);
+                                    }
                                 }
                                 ?>
                             </div>
