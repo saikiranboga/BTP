@@ -51,15 +51,22 @@
     </head>
 
     <?php
-//        if (isset($_GET['q'])) {
+    include_once 'includes/sqlConnect.php';
+    include_once 'includes/path.php';
+    if (isset($_GET['qNum'])) {
+        $qNum = $_GET['qNum'];
+    }
+    else{
+        echo "Error: qNum not set";
+    }
 //            $query = $_get['q'];
-//            exec("echo \"$query\" > /home/saikiranboga/BTP/query");
+//            exec("echo \"$query\" > $blastQuery");
 //            test for remote NCBI data base search
-//$command = '/home/saikiranboga/BTP/blast+/bin/blastp -remote -query /home/saikiranboga/BTP/query -db nr -outfmt 5';
-//exec($command, $output, $status);
+    $command = $blastBin . 'blastp -query ' . $blastQuery.$qNum . ' -db '. $blastDbNr .' -outfmt 5 -num_threads 4';
+    exec($command, $output, $status);
 // avoid blast+ search, read result from file
-    $lay = 'cat /home/saikiranboga/BTP/tmp2.xml';
-    exec($lay, $output, $status);
+//    $lay = 'cat tmp2.xml';
+//    exec($lay, $output, $status);
 
     $xmlStr = implode("\n", $output);
     $xml = simplexml_load_string($xmlStr);
@@ -96,6 +103,7 @@
                                                     $Hsp_qseq[] = $hgen->{'Hsp_qseq'};
                                                     $Hsp_hseq[] = $hgen->{'Hsp_hseq'};
                                                     $Hsp_midline[] = $hgen->{'Hsp_midline'};
+                                                    break;
                                                 }
                                             }
                                         }
@@ -108,7 +116,6 @@
             }
         }
     }
-    echo "Significant Alignments: ".count($Hit_def);
     $scoreLimit = 100;
     if ($Hsp_score[0] > $scoreLimit) {
         ?>
@@ -122,9 +129,11 @@
             for ($i = 0; $i < count($Hit_def); $i++) {
                 if ($Hsp_score[$i] > $scoreLimit) {
                     $accession = explode("|", $Hit_id[$i]);
-                    $sequence = "<a href=\"http://www.ncbi.nlm.nih.gov/protein/$accession[1]\" >$accession[2]|$accession[3]|</a>&nbsp;&nbsp;$Hit_def[$i]";
-                    if (strlen($sequence) - strlen($accession[1]) > 140)
+                    $link = explode("|", $Hit_def[$i]);
+                    $sequence = "<a href=\"http://www.ncbi.nlm.nih.gov/protein/$link[3]\" >NCBI|</a>&nbsp;&nbsp;$Hit_def[$i]";
+                    if (strlen($sequence) - strlen($accession[1]) > 140){
                         $sequence = substr($sequence, 0, 140 + strlen($accession[1])) . "...";
+                    }
                     echo "<td><pre>$sequence" . '<a class="inline" href="#inline_content_NCBI' . $i . '">[+]</a></pre>';
 
                     echo "<div style='display:none;max-width: 800px;text-overflow: ellipsis;'>
@@ -139,7 +148,7 @@
                     echo "<br/><br/>Query  " . $Hsp_qseq[$i];
                     echo "<br/>       " . $Hsp_midline[$i];
                     echo "<br/>Sbjct  " . $Hsp_hseq[$i];
-                    echo "<br/><br/>Representative Sequence: " . $repr_element[$i] . "</PRE>";
+                    echo "<br/><br/></PRE>";
                     echo "</p>
                             </div>
                           </div>";
@@ -152,7 +161,7 @@
             }
             ?>
         </table>
-        <?
+        <?php
     } else {
         echo "<p> No significant hits found in NCBI database</p>";
     }
