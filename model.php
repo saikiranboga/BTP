@@ -1,11 +1,11 @@
 <?php
-include 'sqlConnect.php';
+include 'includes/sqlConnect.php';
+include 'includes/path.php';
 $query = $_POST['S1'];
-exec("echo \"$query\" > /home/saikiranboga/BTP/query");
+exec("echo \"$query\" > $blastQuery");
 
 //  ALWAYS USE 2>&1 IN EXEC WHILE DEBUGGING
-$command = '/home/saikiranboga/BTP/blast+/bin/blastp -query /home/saikiranboga/BTP/query -db /home/saikiranboga/BTP/blast+/db/unannotated.fasta -outfmt=5';
-$lay = 'cat /home/saikiranboga/BTP/temp.xml';
+$command = $blastBin.'blastp -query '.$blastQuery.' -db '.$blastDb.' -outfmt=5';
 exec($command, $output, $status);
 
 $xmlString = implode("\n", $output);
