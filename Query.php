@@ -49,6 +49,7 @@
             }
         </script>
     </head>
+<<<<<<< HEAD
     <body bgcolor="#F3F3F3" style="min-width: 900px;">
         <table border="0" width="100%;"  cellspacing="0" cellpadding="0" >
             <tr bgcolor="#FFCF00">
@@ -59,6 +60,18 @@
                     </h3>
                 </td>
                 <td width="10%" style='box-shadow: inset 0 -2px 0 #ccc'></td>
+=======
+    <body   bgcolor="#F3F3F3" style="min-width: 900px;">
+        <table border="0" width="100%;"  cellspacing="0" cellpadding="0">
+            <tr bgcolor="#FFCF00">
+                <td width="15%"></td>
+                <td style="text-align: center;">
+                    <h3>
+                        <span style="color: #102E37;font-family:  'arial'; font-weight: bold;font-size: 2.1em;padding-left: 0;margin-bottom: 10px">PREDICTING ANNOTATIONS OF UNANNOTATED PROTIENS</span>
+                    </h3>
+                </td>
+                <td width="10%"></td>
+>>>>>>> d66b584d2356925a8ee333adec9af6c6c2919c84
             </tr>
 
             <tr bgcolor="#F3F3F3">
@@ -210,6 +223,7 @@
                                                 </form>
                                             </td>
                                         </tr>
+<<<<<<< HEAD
                                         <tr>
                                           <td>
                                             <form action="keywordQuery.php" method="get" id="search" style="padding: 0; margin: 0">
@@ -239,6 +253,8 @@
                                             </form>
                                           </td>
                                         </tr>
+=======
+>>>>>>> d66b584d2356925a8ee333adec9af6c6c2919c84
                                     </table>
                                     <?
                                 }
@@ -269,7 +285,11 @@
             <tr bgcolor="#F3F3F3"><td colspan="3">&nbsp;</td></tr>
         </table>
         <div id="footer">
+<<<<<<< HEAD
             Last Updated: 29 Dec 2013
+=======
+            Last Updated: 29 Nov 2013
+>>>>>>> d66b584d2356925a8ee333adec9af6c6c2919c84
         </div>
 
         <!-- This contains the hidden content for inline calls -->
