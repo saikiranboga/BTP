@@ -22,50 +22,43 @@
 
             function checkform()
             {
-
                 if (form1.S1.value === 0) {
                     alert("Please enter the protein sequence!");
                     form1.S1.focus();
                     return(false);
                 }
                 else {
-                    /*
-                     var seqstr = form1.S1.value;
-                     
-                     str = seqstr.toLowerCase();
-                     
-                     if (str.indexOf('>') !== 0) {
-                     alert("Sorry,your input sequence is not in Fasta format. Please see the example and input again!");
-                     form1.S1.focus();
-                     return(false);
-                     }
-                     
-                     var indexMatch = str.indexOf("\n");
-                     
-                     */
+                    var seqstr = form1.S1.value;
 
-                    str = substr(str, indexMatch);
+                    str = seqstr.toLowerCase();
 
-                    while (indexMatch !== -1) {
-                        str = str.replace(" ", "");
-                        indexMatch = str.indexOf(" ");
+                    if (str.indexOf('>') !== 0) {
+                        alert("Sorry,your input sequence is not in Fasta format. Please see the example and input again!");
+                        form1.S1.focus();
+                        return(false);
+                    }
+                    else {
+                        var indexMatch = str.indexOf("\n");
 
+                        str = str.substr(indexMatch, str.length - indexMatch - 1);
+
+                        while (indexMatch !== -1) {
+                            str = str.replace(" ", "");
+                            indexMatch = str.indexOf(" ");
+                        }
                     }
 
                     indexMatch = str.indexOf("\n");
                     while (indexMatch !== -1) {
                         str = str.replace("\n", "");
                         indexMatch = str.indexOf("\n");
-
                     }
 
                     indexMatch = str.indexOf("\r");
                     while (indexMatch !== -1) {
                         str = str.replace("\r", "");
                         indexMatch = str.indexOf("\r");
-
                     }
-
 
                     if (str.length < 10) {
                         alert("Sorry,Your input sequence is:" + str.length + " aa long and less than 10aa. Please input again!");
@@ -82,18 +75,11 @@
                             form1.S1.focus();
                             return(false);
                         }
-
                     }
 
-
-
                 }
-
-
                 return(true);
             }
-
-
 
             function openwin()
             {
@@ -106,19 +92,22 @@
                 window.open("accession_number.htm", "newwindow", "height=280, width=550, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no");
 
             }
+
             function OpenNewsWin()
             {
                 window.open("News.htm", "newwindow", "height=300, width=550, top=0, left=0, toolbar=no, menubar=no, scrollbars=yes, resizable=no,location=no, status=no");
 
             }
+
             function showAlign(qseq, midline, hseq) {
                 //this.innerHTML = qseq + "\n" + midline + "\n" + hseq;
                 //alert(this.innerHTML);
                 //alert(qseq + "\n" + midline + "\n" + hseq);
             }
+            
             function showNCBI(nQuery)
             {
-                document.getElementById("dynamic"+nQuery).innerHTML = '<p style="padding:5px;">Fetching results from NCBI nr database...</p>';
+                document.getElementById("dynamic" + nQuery).innerHTML = '<p style="padding:5px;">Fetching results from NCBI nr database...</p>';
                 if (window.XMLHttpRequest)
                 {// code for IE7+, Firefox, Chrome, Opera, Safari
                     xmlhttp = new XMLHttpRequest();
@@ -131,13 +120,13 @@
                 {
                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
                     {
-                        data = document.getElementById("dynamic"+nQuery).innerHTML;
+                        data = document.getElementById("dynamic" + nQuery).innerHTML;
                         data = '<p style="background:#FFD773;padding: 5px;">NCBI Search Results</p>' + xmlhttp.responseText;
-                        document.getElementById("dynamic"+nQuery).innerHTML = data;
+                        document.getElementById("dynamic" + nQuery).innerHTML = data;
                         $(".inline").colorbox({inline: true, maxWidth: '900px'});
                     }
                 };
-                xmlhttp.open("GET", "getNCBI.php?qNum="+nQuery, true);
+                xmlhttp.open("GET", "getNCBI.php?qNum=" + nQuery, true);
                 xmlhttp.send();
 
             }
@@ -306,7 +295,7 @@
                                                 -->
                                                 <tr>
                                                     <td style="padding: 5px; background: #FFD773">
-                                            <font size=3pt face='times new roman'>Query <?php print $qNum+1; ?></font>
+                                                        <font size=3pt face='times new roman'>Query <?php print $qNum + 1; ?></font>
                                                         <pre><?php echo $query_def[$qNum] . '<a  onclick="toggle(' . $qNum . ')" >[+]</a>'; ?></pre>
                                                     </td>
                                                 </tr>
@@ -354,7 +343,7 @@
                                                                 ?>
                                                             </table>
                                                             <!--*As told by Ma'am this feature not required*-->
-                                                            <div id="<?php echo "dynamic".$qNum;?>">
+                                                            <div id="<?php echo "dynamic" . $qNum; ?>">
                                                                 <button onclick="showNCBI(<?php echo $qNum; ?>)">Search NCBI</button>
                                                             </div>
                                                         </div>
@@ -423,12 +412,12 @@
                                     $shifted = round($number * $magnitude);
                                     return $shifted / $magnitude;
                                 }
-                                
+
                                 function splitQueries($query) {
                                     $queries = explode('>', $query);
-                                    
-                                    for($i=0; $i<count($queries)-1; $i++) {
-                                        exec('echo ">'.$queries[$i+1].'" > data/query'.$i);
+
+                                    for ($i = 0; $i < count($queries) - 1; $i++) {
+                                        exec('echo ">' . $queries[$i + 1] . '" > data/query' . $i);
                                     }
                                 }
                                 ?>

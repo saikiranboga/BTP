@@ -102,12 +102,11 @@
                                     $escapeFoldType = mysqli_escape_string($db_con, $fold_type);
 
                                     if ($fold_type && $id)
-                                        $sql = "select assession_number,description from repr_fold where metagenomic_sample_code like('$escapeId') and description like('$escapeFoldType')";
+                                        $sql = "select assession_number,description from repr_fold where metagenomic_sample_code like('%$escapeId%') and description like('$escapeFoldType')";
                                     else if ($id)
-                                        $sql = "select assession_number,description from repr_fold where metagenomic_sample_code like('$escapeId')";
-                                    else if ($fold_type) {
-                                        $sql = "select assession_number,description from repr_fold where description like('$fold_type')";
-                                    }
+                                        $sql = "select assession_number,description from repr_fold where metagenomic_sample_code like('%$escapeId%')";
+                                    else if ($fold_type)
+                                        $sql = "select assession_number,description from repr_fold where description like('%$escapeFoldType%')";
 
                                     $result = mysqli_query($db_con, $sql);
 
@@ -115,8 +114,8 @@
                                     while ($row = mysqli_fetch_array($result)) {
                                         $repr_annotation[$i] = $row['assession_number'];
                                         $repr_description[$i] = $row['description'];
+//Prob: fold_type_class doesn't have entries identical to either description, pred1 or pred2 in repr_fold. Its probably description without ' fold' in end
                                         $sql = "select class from fold_type_class where fold_type='$repr_description[$i]'";
-                                        //echo $sql;
                                         $result_class = mysqli_query($db_con, $sql);
                                         $r = mysqli_fetch_array($result_class);
                                         if ($r['class']) {
