@@ -25,6 +25,8 @@
 *.log
 *.sql
 *.sqlite
+/results/*
+/uploads/*
  
 # OS generated files #
 ######################
