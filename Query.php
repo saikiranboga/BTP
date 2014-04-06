@@ -105,7 +105,7 @@
                                         $sql = "select assession_number,description from repr_fold where metagenomic_sample_code like('$escapeId') and description like('$escapeFoldType')";
                                     else if ($id)
                                         $sql = "select assession_number,description from repr_fold where metagenomic_sample_code like('$escapeId')";
-                                    else if ($fold_type){
+                                    else if ($fold_type) {
                                         $sql = "select assession_number,description from repr_fold where description like('$fold_type')";
                                     }
 
@@ -119,14 +119,14 @@
                                         //echo $sql;
                                         $result_class = mysqli_query($db_con, $sql);
                                         $r = mysqli_fetch_array($result_class);
-                                        if($r['class']){
+                                        if ($r['class']) {
                                             $repr_class[$i] = $r['class'];
-                                        }
-                                        else{
+                                        } else {
                                             $repr_class[$i] = "--";
                                         }
                                         $i += 1;
-                                    }?>
+                                    }
+                                    ?>
                                     <div>
                                         <table  width="100%">
                                             <tr>
@@ -134,113 +134,111 @@
                                                     <p style="text-decoration: underline"><font size=3pt face='times new roman'>Query</font></p>
                                                     <pre><font size=3pt face='times new roman'>metagenome id: <?php echo $escapeId ?></font>
 
-<font size=3pt face='times new roman'>fold type: <?php 
-                                                    if($fold_type == "") {
-                                                        echo "--";
-                                                        
-                                                    }else{
-                                                        echo $fold_type;
-                                                    }
-                                                    ?></font>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <div  name="results">
-                                                        <table id="results_query" width="100%">
-                                                            <?php if(isset($repr_annotation)){ ?>
-                                                            <tr>
-                                                                <th width="50%">Annotation</th>
-                                                                <th>Fold Type</th>
-                                                                <th>Class</th>
-                                                            </tr>
-                                                            <?php
-                                                            for ($i = 0; $i < count($repr_annotation); $i++) {
-                                                                if ($repr_annotation[$i] !== 'NA' && $repr_description[$i] !== 'NA') {
-                                                                    echo "<tr>";
-                                                                    echo '<td width="50%" style="font-size:12px"><PRE>' . substr($repr_annotation[$i], 0, 50) . "...</PRE></td>";
-                                                                    echo "<td>" . $repr_description[$i] . "</td>";
-                                                                    echo "<td>" . $repr_class[$i] . "</td>";
-                                                                    echo "</tr>";
+        <font size=3pt face='times new roman'>fold type: <?php
+                                                        if ($fold_type == "") {
+                                                            echo "--";
+                                                        } else {
+                                                            echo $fold_type;
+                                                        }
+                                                        ?></font>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div  name="results">
+                                                                <table id="results_query" width="100%">
+                                                            <?php if (isset($repr_annotation)) { ?>
+                                                                            <tr>
+                                                                                <th width="50%">Annotation</th>
+                                                                                <th>Fold Type</th>
+                                                                                <th>Class</th>
+                                                                            </tr>
+                                                                <?php
+                                                                for ($i = 0; $i < count($repr_annotation); $i++) {
+                                                                    if ($repr_annotation[$i] !== 'NA' && $repr_description[$i] !== 'NA') {
+                                                                        echo "<tr>";
+                                                                        echo '<td width="50%" style="font-size:12px"><PRE>' . substr($repr_annotation[$i], 0, 50) . "...</PRE></td>";
+                                                                        echo "<td>" . $repr_description[$i] . "</td>";
+                                                                        echo "<td>" . $repr_class[$i] . "</td>";
+                                                                        echo "</tr>";
+                                                                    }
                                                                 }
-                                                            }
-                                                            }
-                                                            else{
+                                                            } else {
                                                                 echo "<tr><td>No Matches found.</td></tr>";
                                                             }
                                                             ?>
-                                                        </table>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td align="center">
-                                                    <a href="index.php">HOME</a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <?
-                                } else {
-                                    ?>
-                                    <table width="100%" bgcolor="#F0F8FF">
-                                        <tr>
-                                            <td valign="top">
-                                                <form name="form1" action="Query.php" method="post" enctype="multipart/form-data" onsubmit="javascript:return checkform();">
+                                                                </table>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center">
+                                                            <a href="index.php">HOME</a>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <?php
+                                        } else {
+                                            ?>
+                                            <table width="100%" bgcolor="#F0F8FF">
+                                                <tr>
+                                                    <td valign="top">
+                                                        <form name="form1" action="Query.php" method="post" enctype="multipart/form-data" onsubmit="javascript:return checkform();">
+                                                            <table width="100%">
+                                                                <tr>
+                                                                    <td width="30%">
+                                                                        <span style="font-size:13pt" >Metagenome ID: </span><br/>
+                                                                        <span style="font-size:13pt" >Fold type: </span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input style="font-size:13pt" type="text" name="metagenome_id" /><br/>
+                                                                        <input style="font-size:13pt" type="text" name="fold_type" />
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td align="center" colspan="2">
+                                                                        &nbsp &nbsp &nbsp &nbsp &nbsp
+                                                                        <input style="font-size:13pt" type="submit" value="Submit" name="B2"/>
+                                                                        &nbsp &nbsp &nbsp &nbsp &nbsp
+                                                                        <input style="font-size:13pt" type="reset" value="Clear" name="RS"/>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>
+                                                    <form action="keywordQuery.php" method="get" id="search" style="padding: 0; margin: 0">
                                                     <table width="100%">
-                                                        <tr>
-                                                            <td width="30%">
-                                                                <span style="font-size:13pt" >Metagenome ID: </span><br/>
-                                                                <span style="font-size:13pt" >Fold type: </span>
-                                                            </td>
-                                                            <td>
-                                                                <input style="font-size:13pt" type="text" name="metagenome_id" /><br/>
-                                                                <input style="font-size:13pt" type="text" name="fold_type" />
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td align="center" colspan="2">
-                                                                &nbsp &nbsp &nbsp &nbsp &nbsp
-                                                                <input style="font-size:13pt" type="submit" value="Submit" name="B2"/>
-                                                                &nbsp &nbsp &nbsp &nbsp &nbsp
-                                                                <input style="font-size:13pt" type="reset" value="Clear" name="RS"/>
-                                                            </td>
-                                                        </tr>
+                                                      <tr>
+                                                        <td width="30%">
+                                                          <span style="font-size:13pt" >Keyword Search: </span><br/>
+                                                        </td>
+                                                        <td>
+                                                          <input style="font-size:13pt" type="text" name="q" /><br/>
+                                                        </td>
+                                                      </tr>
+                                                      <tr>
+                                                        <td align="center" colspan="2">
+                                                          &nbsp &nbsp &nbsp &nbsp &nbsp
+                                                          <input style="font-size:13pt" type="submit" value="Search" name="keyqs"/>
+                                                          &nbsp &nbsp &nbsp &nbsp &nbsp
+                                                          <input style="font-size:13pt" type="reset" value="Clear" name="keyrs"/>
+                                                          
+                                                          <p><i>*for exact match append ^ infront and $ at the end of the word to be queried. Eg: ^NA$</i></p>
+                                                        </td>
+                                                      </tr>
                                                     </table>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                          <td>
-                                            <form action="keywordQuery.php" method="get" id="search" style="padding: 0; margin: 0">
-                                            <table width="100%">
-                                              <tr>
-                                                <td width="30%">
-                                                  <span style="font-size:13pt" >Keyword Search: </span><br/>
-                                                </td>
-                                                <td>
-                                                  <input style="font-size:13pt" type="text" name="q" /><br/>
-                                                </td>
-                                              </tr>
-                                              <tr>
-                                                <td align="center" colspan="2">
-                                                  &nbsp &nbsp &nbsp &nbsp &nbsp
-                                                  <input style="font-size:13pt" type="submit" value="Search" name="keyqs"/>
-                                                  &nbsp &nbsp &nbsp &nbsp &nbsp
-                                                  <input style="font-size:13pt" type="reset" value="Clear" name="keyrs"/>
-                                                  
-                                                  <p><i>*for exact match append ^ infront and $ at the end of the word to be queried. Eg: ^NA$</i></p>
-                                                </td>
-                                              </tr>
+                                                    
+                                                      <!--Search: <input name="q" type="text"/>
+                                                      <input type="submit" value="Search"/-->
+                                                    </form>
+                                                  </td>
+                                                </tr>
                                             </table>
-                                            
-                                              <!--Search: <input name="q" type="text"/>
-                                              <input type="submit" value="Search"/-->
-                                            </form>
-                                          </td>
-                                        </tr>
-                                    </table>
-                                    <?
+                                    <?php
                                 }
                                 ?>
 
