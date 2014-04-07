@@ -8,6 +8,7 @@ use FileHandle;
 #flush output  buffer
 $|=1; 
 my $browser = LWP::UserAgent->new;
+$browser->proxy(['http','ftp'],'http://10.8.0.1:8080/');
 chomp(my $infile=$ARGV[0]);
 my $outfile=$infile."_PFPPred_fold";
 open(IN,"$infile") or die $!;

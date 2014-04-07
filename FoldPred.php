@@ -2,15 +2,8 @@
 error_reporting(E_ALL);
 ini_set("display_error", 1);
 
-
-$server = "localhost:3306";
-$username = "root";
-$password = "root";
-$database = "metagen";
-
-$conn = mysql_connect($server, $username, $password, $database);
-if ($conn == NULL)
-  echo "DB connection error";
+require_once 'includes/path.php';
+require_once 'includes/sqlConnect.php';
 ?>
 
 <html>

@@ -13,9 +13,9 @@ Installing:
 Installing and running the project requires:
 
 * Paths to following to be configured in path.php 
--Blast+ binaries existing on system
--Metagenomic db sequences already formated by blast+
--NCBI nr db already formated by blast+
+    - Blast+ binaries existing on system
+    - Metagenomic db sequences already formated by blast+
+    - NCBI nr db already formated by blast+
 
 * Configure MySql database containing metagenome annotation and there details in sqlConnect.php
 

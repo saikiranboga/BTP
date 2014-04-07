@@ -90,107 +90,88 @@
                                 <?php
                                 include 'includes/sqlConnect.php';
                                 include 'includes/path.php';
-                                require_once 'includes/' . $PHPMailer;
+                                require_once 'includes/sendMail.php';
                                 if (isset($_POST['B1'])) {
 
 // Copied from http://www.php.net/manual/en/features.file-upload.php
                                     // Check $_FILES['S1']['error'] value.
 //                                        header('Content-Type: text/plain; charset=utf-8');
+                                    ?>
+                                    <table width="100%" bgcolor="#F0F8FF">
+                                        <?php
+                                        try {
 
-                                    try {
+                                            // Undefined | Multiple Files | $_FILES Corruption Attack
+                                            // If this request falls under any of them, treat it invalid.
+                                            if (
+                                                    !isset($_FILES['S1']['error']) ||
+                                                    is_array($_FILES['S1']['error'])
+                                            ) {
+                                                throw new RuntimeException('Invalid parameters.');
+                                            }
 
-                                        // Undefined | Multiple Files | $_FILES Corruption Attack
-                                        // If this request falls under any of them, treat it invalid.
-                                        if (
-                                                !isset($_FILES['S1']['error']) ||
-                                                is_array($_FILES['S1']['error'])
-                                        ) {
-                                            throw new RuntimeException('Invalid parameters.');
-                                        }
+                                            // Check $_FILES['S1']['error'] value.
+                                            switch ($_FILES['S1']['error']) {
+                                                case UPLOAD_ERR_OK:
+                                                    break;
+                                                case UPLOAD_ERR_NO_FILE:
+                                                    throw new RuntimeException('No file sent.');
+                                                case UPLOAD_ERR_INI_SIZE:
+                                                case UPLOAD_ERR_FORM_SIZE:
+                                                    throw new RuntimeException('Exceeded filesize limit.');
+                                                default:
+                                                    throw new RuntimeException('Unknown errors.');
+                                            }
 
-                                        // Check $_FILES['S1']['error'] value.
-                                        switch ($_FILES['S1']['error']) {
-                                            case UPLOAD_ERR_OK:
-                                                break;
-                                            case UPLOAD_ERR_NO_FILE:
-                                                throw new RuntimeException('No file sent.');
-                                            case UPLOAD_ERR_INI_SIZE:
-                                            case UPLOAD_ERR_FORM_SIZE:
+                                            // You should also check filesize here.
+                                            if ($_FILES['S1']['size'] > 1000000) {
                                                 throw new RuntimeException('Exceeded filesize limit.');
-                                            default:
-                                                throw new RuntimeException('Unknown errors.');
-                                        }
+                                            }
 
-                                        // You should also check filesize here.
-                                        if ($_FILES['S1']['size'] > 1000000) {
-                                            throw new RuntimeException('Exceeded filesize limit.');
-                                        }
-
-                                        // DO NOT TRUST $_FILES['S1']['mime'] VALUE !!
-                                        // Check MIME Type by yourself.
-                                        $finfo = new finfo(FILEINFO_MIME_TYPE);
+                                            // DO NOT TRUST $_FILES['S1']['mime'] VALUE !!
+                                            // Check MIME Type by yourself.
+                                            $finfo = new finfo(FILEINFO_MIME_TYPE);
 //                                                echo "<br/> finfo: " . $finfo->file($_FILES['S1']['tmp_name']) . "That's it<br/>";
-                                        if (false === $ext = array_search(
-                                                $finfo->file($_FILES['S1']['tmp_name']), array(
+                                            if (false === $ext = array_search(
+                                                    $finfo->file($_FILES['S1']['tmp_name']), array(
 //                                                    'jpg' => 'image/jpeg',
 //                                                    'png' => 'image/png',
 //                                                    'gif' => 'image/gif',
-                                            'txt' => 'text/plain',
-                                                ), true
-                                                )) {
-                                            throw new RuntimeException('Invalid file format.');
+                                                'txt' => 'text/plain',
+                                                    ), true
+                                                    )) {
+                                                throw new RuntimeException('Invalid file format.');
+                                            }
+
+                                            // You should name it uniquely.
+                                            // DO NOT USE $_FILES['S1']['name'] WITHOUT ANY VALIDATION !!
+                                            // On this example, obtain safe unique name from its binary data.
+                                            $filename = sha1_file($_FILES['S1']['tmp_name']);
+                                            if (!move_uploaded_file(
+                                                            $_FILES['S1']['tmp_name'], sprintf('./uploads/%s', $filename)
+                                                    )
+                                            ) {
+                                                throw new RuntimeException('Failed to move uploaded file.');
+                                            }
+
+                                            $To = $_POST['email'];
+                                            $Subject = 'MetaGen Query Result';
+                                            $Body = '<html><p>Request for your query id=' . $filename . ' is accepted for processing.<br/>You will recieve mail notification along with link to result page when the query has been processed.</p></html>';
+                                            $AltBody = 'Result for query is at: http://localhost/ShowResult.php?q=' . $filename;
+
+                                            echo '<tr><td style="font-size:11pt" >File is uploaded successfully.</td></tr><tr></tr><tr><td style="font-size:11pt" >Query id: ' . $filename . '</td></tr>';
+                                            exec("sh bash/processUpload.sh $filename $To > /dev/null &");
+
+                                            if (!sendMail($To, $Subject, $Body, $AltBody)) {
+                                                echo '<tr><td style="font-size:11pt" >Sorry: Confirmation could not be sent to your email id ' . $To . '.</td></tr>';
+                                                exit;
+                                            } else {
+                                                echo '<tr><td style="font-size:11pt" >Query request confirmation mail has been sent to  ' . $To . '.</td></tr>';
+                                            }
+                                        } catch (RuntimeException $e) {
+
+                                            echo $e->getMessage();
                                         }
-
-                                        // You should name it uniquely.
-                                        // DO NOT USE $_FILES['S1']['name'] WITHOUT ANY VALIDATION !!
-                                        // On this example, obtain safe unique name from its binary data.
-                                        $filename = sha1_file($_FILES['S1']['tmp_name']);
-                                        echo $filename . "<br/>";
-                                        if (!move_uploaded_file(
-                                                        $_FILES['S1']['tmp_name'], sprintf('./uploads/%s', $filename)
-                                                )
-                                        ) {
-                                            throw new RuntimeException('Failed to move uploaded file.');
-                                        }
-
-                                        echo 'File is uploaded successfully.';
-                                        exec("sh bash/processUpload.sh $filename > /dev/null &");
-                                        $mail = new PHPMailer;
-//$mail->isSendmail();                                  // Set email format to sendmail
-                                        $mail->isSMTP();                                      // Set mailer to use SMTP
-                                        $mail->Host = 'smtp.gmail.com:587';  // Specify main and backup server
-                                        $mail->SMTPAuth = true;                               // Enable SMTP authentication
-                                        $mail->Username = 'metagen.noreply@gmail.com';                            // SMTP username
-                                        $mail->Password = 'metagennoreply';                           // SMTP password
-                                        $mail->SMTPSecure = 'tls';                            // Enable encryption, 'ssl' also accepted
-
-                                        $mail->From = 'metagen.noreply@gmail.com';
-                                        $mail->FromName = 'MetaGen';
-                                        $mail->addAddress($_POST['email']);  // Add a recipient
-//$mail->addAddress('ellen@example.com');               // Name is optional
-//$mail->addReplyTo('metagen.noreply@gmail.com', 'MetaGen');
-//$mail->addCC('cc@example.com');
-//$mail->addBCC('bcc@example.com');
-
-                                        $mail->WordWrap = 50;                                 // Set word wrap to 50 characters
-//$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
-//$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
-                                        $mail->isHTML(true);                                  // Set email format to HTML
-
-                                        $mail->Subject = 'MetaGen Query Result';
-                                        $mail->Body = 'Result for query is at: http://localhost/ShowResult.php?q=' . $filename;
-                                        $mail->AltBody = 'Result for query is at: http://localhost/ShowResult.php?q=' . $filename;
-
-                                        if (!$mail->send()) {
-                                            echo 'Message could not be sent.';
-                                            echo 'Mailer Error: ' . $mail->ErrorInfo;
-                                            exit;
-                                        }
-                                        echo 'Message has been sent';
-                                    } catch (RuntimeException $e) {
-
-                                        echo $e->getMessage();
-                                    }
 // Ends of copied
 //                                        echo "Upload: " . $_FILES["S1"]["name"] . "<br/>";
 //                                        echo "Type: " . $_FILES["S1"]["type"] . "<br/>";
@@ -203,6 +184,9 @@
 //                                            }
 //                                        }
 //                                    }
+                                        ?>
+                                    </table>
+                                    <?php
                                 } else {
                                     ?>
                                     <table width="100%" bgcolor="#F0F8FF">
@@ -234,8 +218,8 @@
                                                         <tr>
     <!--                                                            <td>
                                                                     <textarea name="S1" style="width:99%; height:220px; overflow: auto; resize: none; margin: 0; border:1px solid #A1A1A1;"><?php
-                                                            echo $query;
-                                                            ?></textarea
+                                echo $query;
+                                    ?></textarea
                                                             </td>-->
                                                         </tr>
 

@@ -31,8 +31,8 @@
                     <ul id="nav">
                         <li class="cur"><strong>Home</strong></li>
                         <li><a href="Align.php">Align</a></li>
-                        <li><a href="Query">Query</a></li>
-                        <li><a href="Federation">Federation</a></li>
+                        <li><a href="Query.php">Query</a></li>
+                        <li><a href="Federation.php">Federation</a></li>
                         <li><a href="tutorial">Tutorial</a></li>
                         <li><a href="faqs">FAQs</a></li>
                         <li><a href="download">Download</a></li>

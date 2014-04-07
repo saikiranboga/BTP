@@ -20,6 +20,7 @@ my $count=0;
 open(LOG,">server.log") or die $!;
 
 $browser->timeout(400);
+$browser->proxy(['http','ftp'],'http://10.8.0.1:8080/');
 LOG->autoflush(1);
 OUT->autoflush(1);
 

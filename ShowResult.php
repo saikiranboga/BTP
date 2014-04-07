@@ -104,7 +104,7 @@
                 //alert(this.innerHTML);
                 //alert(qseq + "\n" + midline + "\n" + hseq);
             }
-            
+
             function showNCBI(nQuery)
             {
                 document.getElementById("dynamic" + nQuery).innerHTML = '<p style="padding:5px;">Fetching results from NCBI nr database...</p>';
@@ -190,12 +190,12 @@
                                 <?php
                                 include 'includes/sqlConnect.php';
                                 include 'includes/path.php';
-                                if (isset($_GET['q']) && file_exists("results/".$_GET['q'].".out")) {
+                                if (isset($_GET['q']) && file_exists("results/" . $_GET['q'] . ".out")) {
                                     $filename = $_GET['q'];
                                     $query = "";
                                     $file = fopen("uploads/$filename", "r");
-                                    while(!feof($file)){
-                                            $query .= fgets($file, 4096);
+                                    while (!feof($file)) {
+                                        $query .= fgets($file, 4096);
                                     }
                                     fclose($file);
                                     splitQueries($query);
@@ -263,6 +263,20 @@
 
 
                                             <?php
+                                            if (!isset($Hit_def)) {
+                                                ?>
+                                                <tr>
+                                                    <td>
+                                                        <p>No matches found!</p>
+                                                        <form action="FoldPred.php" method="post" id="foldp">
+                                                            <p>
+                                                                <button name="foldPred">Search Online for Fold</button>
+                                                            </p>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                <?php
+                                            } else {
                                             for ($qNum = 0; $qNum < $numQuery; $qNum++) {
                                                 foreach ($Hit_def[$qNum] as $Hit) {
                                                     $escapeHit = mysqli_escape_string($db_con, $Hit);
@@ -289,6 +303,20 @@
                                                         $class[] = $row['class'];
                                                     }
                                                 }
+                                                $idx = 0;
+                                                $ct = count($description);
+                                                while ($idx < $ct) {
+                                                    if ($description[$idx] != 'NA') {
+                                                        break;
+                                                    }
+                                                    $idx++;
+                                                }
+                                                if ($idx == $ct) {
+                                                    $idx = 0;
+                                                }
+                                                $wd = str_replace(array('\\', '/', '-'), ' ', $description[$idx]);
+                                                $n_words = preg_match_all('/([a-zA-Z]|\xC3[\x80-\x96\x98-\xB6\xB8-\xBF]|\xC5[\x92\x93\xA0\xA1\xB8\xBD\xBE]){3,}/', $wd, $match_arr);
+                                                $word_arr = $match_arr[0];
                                                 ?>
                                                 <tr>
                                                     <td>
@@ -299,10 +327,21 @@
                                                     #FFD773
                                                 -->
                                                 <tr>
-                                                    <td style="padding: 5px; background: #FFD773">
-                                                        <font size=3pt face='times new roman'>Query <?php print $qNum + 1; ?></font>
-                                                        <pre><?php echo $query_def[$qNum] . '<a  onclick="toggle(' . $qNum . ')" >[+]</a>'; ?></pre>
-                                                    </td>
+                                                        <td style="padding: 5px; background: #FFD773">
+                                                            <font size=3pt face='times new roman'>Query <?php print $qNum + 1; ?></font>
+                                                            <?php
+                                                            echo '<pre>' . $query_def[$qNum] . '<a  onclick="toggle(' . $qNum . ')" >[+]</a><br/>';
+                                                            if (count($word_arr) > 0) {
+                                                                $scopLink = "http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?ver=1.75&key=" . $word_arr[0];
+
+                                                                for ($i = 1; $i < count($word_arr); $i++) {
+                                                                    $scopLink = $scopLink . "+%2B" . $word_arr[$i];
+                                                                }
+                                                                $scopLink = $scopLink . "&search_type=scop";
+                                                                echo '<a href="' . $scopLink . '" target="_blank">SCOP</a></pre>';
+                                                            }
+                                                            ?>
+                                                        </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
@@ -353,6 +392,7 @@
                                                             </div>
                                                         </div>
                                                         <?php
+                                                    }
                                                     }
                                                     ?>
                                             </tr>
